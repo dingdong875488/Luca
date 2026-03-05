@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LUCA">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#07090f">
+<meta name="description" content="LUCA — Your private AI personal assistant for health, finance, automation & wellbeing">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<title>LUCA — Personal AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #07090f;
+    --surface: #0d1117;
+    --surface2: #131823;
+    --surface3: #1a2233;
+    --border: rgba(100,180,255,0.08);
+    --border2: rgba(100,180,255,0.15);
+    --accent: #4da6ff;
+    --accent2: #7dc4ff;
+    --accent3: #00e5c3;
+    --accent4: #ff6b8a;
+    --accent5: #ffa94d;
+    --text: #e8f1ff;
+    --text2: #8ba8cc;
+    --text3: #4a6280;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    height: 100%; overflow: hidden;
+    background: var(--bg); color: var(--text);
+    font-family: 'Syne', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* APP SHELL */
+  .app-shell {
+    display: flex; flex-direction: column; height: 100vh; height: 100dvh;
+    padding-top: var(--safe-top);
+    padding-bottom: var(--safe-bottom);
+    overflow: hidden;
+  }
+
+  /* BG */
+  .bg-grid {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(77,166,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(77,166,255,0.025) 1px, transparent 1px);
+    background-size: 36px 36px;
+  }
+  .bg-orb1 {
+    position: fixed; width: 400px; height: 400px; top: -150px; right: -150px;
+    background: radial-gradient(circle, rgba(77,166,255,0.07) 0%, transparent 70%);
+    pointer-events: none; z-index: 0; animation: orbFloat 8s ease-in-out infinite;
+  }
+  .bg-orb2 {
+    position: fixed; width: 350px; height: 350px; bottom: -100px; left: -100px;
+    background: radial-gradient(circle, rgba(0,229,195,0.05) 0%, transparent 70%);
+    pointer-events: none; z-index: 0; animation: orbFloat 11s ease-in-out infinite reverse;
+  }
+  @keyframes orbFloat { 0%,100%{transform:translate(0,0)} 50%{transform:translate(20px,-20px)} }
+
+  /* HEADER */
+  header {
+    position: relative; z-index: 10;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px 12px;
+    background: rgba(7,9,15,0.85); backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-orb {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #7dc4ff, #4da6ff 40%, #1a4a80);
+    box-shadow: 0 0 18px rgba(77,166,255,0.5);
+    position: relative; animation: pulse 3s ease-in-out infinite; cursor: pointer;
+    flex-shrink: 0;
+  }
+  .logo-orb::after {
+    content: ''; position: absolute; inset: 3px; border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.3), transparent 60%);
+  }
+  @keyframes pulse { 0%,100%{box-shadow:0 0 18px rgba(77,166,255,0.5)} 50%{box-shadow:0 0 30px rgba(77,166,255,0.8)} }
+  .logo-text {
+    font-size: 20px; font-weight: 800; letter-spacing: 0.14em;
+    background: linear-gradient(135deg, #7dc4ff, #4da6ff 50%, #00e5c3);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .logo-sub { font-family: 'DM Mono',monospace; font-size: 9px; color: var(--text3); letter-spacing: 0.18em; }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .status-pill {
+    display: flex; align-items: center; gap: 5px;
+    padding: 5px 10px; border-radius: 20px;
+    background: rgba(0,229,195,0.08); border: 1px solid rgba(0,229,195,0.2);
+    font-family: 'DM Mono',monospace; font-size: 9px; color: var(--accent3); letter-spacing: 0.08em;
+  }
+  .status-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent3); animation: blink 2s ease-in-out infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .time-disp { font-family: 'DM Mono',monospace; font-size: 12px; color: var(--text2); }
+  .hdr-btn {
+    width: 32px; height: 32px; border-radius: 9px; background: var(--surface2);
+    border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 15px; transition: all 0.2s; flex-shrink: 0;
+  }
+  .hdr-btn:active { transform: scale(0.92); background: var(--surface3); }
+
+  /* SCROLLABLE CONTENT */
+  .content {
+    flex: 1; overflow-y: auto; overflow-x: hidden;
+    position: relative; z-index: 1;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .content::-webkit-scrollbar { display: none; }
+  .content-inner { padding: 16px 14px; padding-bottom: 80px; }
+
+  /* BOTTOM NAV */
+  .bottom-nav {
+    position: relative; z-index: 10;
+    display: flex; background: rgba(7,9,15,0.9); backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border); flex-shrink: 0;
+    padding-bottom: max(var(--safe-bottom), 4px);
+  }
+  .nav-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 8px 4px 6px; cursor: pointer; transition: all 0.2s; gap: 3px;
+  }
+  .nav-item:active { transform: scale(0.9); }
+  .nav-icon { font-size: 20px; transition: transform 0.2s; }
+  .nav-label { font-size: 9px; letter-spacing: 0.06em; color: var(--text3); font-family: 'DM Mono',monospace; transition: color 0.2s; }
+  .nav-item.active .nav-icon { transform: scale(1.15); }
+  .nav-item.active .nav-label { color: var(--accent); }
+  .nav-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--accent); display: none; }
+  .nav-item.active .nav-dot { display: block; }
+
+  /* PANELS */
+  .panel { display: none; animation: fadeIn 0.25s ease; }
+  .panel.active { display: block; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+  /* SECTION LABEL */
+  .sec-label {
+    font-family: 'DM Mono',monospace; font-size: 10px; letter-spacing: 0.15em;
+    color: var(--text3); text-transform: uppercase; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .sec-label::before { content: ''; width: 3px; height: 3px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+
+  /* CARDS */
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 16px; margin-bottom: 12px;
+    position: relative; overflow: hidden;
+  }
+  .card:active { border-color: var(--border2); }
+
+  /* GREETING */
+  .greeting-card {
+    background: linear-gradient(135deg, rgba(77,166,255,0.09), rgba(0,229,195,0.04));
+    border: 1px solid var(--border2); border-radius: 18px; padding: 20px; margin-bottom: 14px;
+    position: relative; overflow: hidden;
+  }
+  .greeting-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(77,166,255,0.6), transparent);
+  }
+  .g-time { font-family: 'DM Mono',monospace; font-size: 10px; color: var(--accent3); letter-spacing: 0.12em; margin-bottom: 6px; }
+  .g-name { font-size: 24px; font-weight: 700; margin-bottom: 5px; }
+  .g-name span { font-family: 'Instrument Serif',serif; font-style: italic; color: var(--accent); }
+  .g-sub { font-size: 12px; color: var(--text2); line-height: 1.55; }
+  .g-chips { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  .chip {
+    padding: 7px 14px; border-radius: 30px; font-size: 11px; font-weight: 600;
+    cursor: pointer; border: 1px solid; display: flex; align-items: center; gap: 5px;
+    letter-spacing: 0.04em; transition: all 0.15s; white-space: nowrap;
+  }
+  .chip:active { transform: scale(0.95); }
+  .ch-b { background: rgba(77,166,255,0.1); border-color: rgba(77,166,255,0.3); color: var(--accent); }
+  .ch-t { background: rgba(0,229,195,0.08); border-color: rgba(0,229,195,0.3); color: var(--accent3); }
+  .ch-o { background: rgba(255,169,77,0.08); border-color: rgba(255,169,77,0.3); color: var(--accent5); }
+  .ch-r { background: rgba(255,107,138,0.08); border-color: rgba(255,107,138,0.3); color: var(--accent4); }
+
+  /* 2-COL GRID */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+
+  /* METRIC CARDS */
+  .metric-card {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 14px; padding: 14px;
+  }
+  .mc-icon { font-size: 20px; margin-bottom: 6px; }
+  .mc-val { font-size: 22px; font-weight: 800; font-family: 'DM Mono',monospace; line-height: 1; }
+  .mc-unit { font-size: 11px; color: var(--text3); }
+  .mc-label { font-size: 11px; color: var(--text2); margin-top: 3px; }
+  .mc-bar { height: 3px; border-radius: 2px; margin-top: 8px; background: var(--surface3); }
+  .mc-fill { height: 100%; border-radius: 2px; }
+  .f-b { background: var(--accent); }
+  .f-t { background: var(--accent3); }
+  .f-o { background: var(--accent5); }
+  .f-r { background: var(--accent4); }
+
+  /* TICKER */
+  .ticker-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--border); }
+  .ticker-row:last-child { border-bottom: none; }
+  .t-sym { font-weight: 700; font-size: 13px; }
+  .t-sub { font-size: 10px; color: var(--text3); }
+  .t-val { font-family: 'DM Mono',monospace; font-size: 13px; }
+  .t-chg { font-family: 'DM Mono',monospace; font-size: 10px; padding: 2px 7px; border-radius: 6px; }
+  .up { color: #4ade80; background: rgba(74,222,128,0.1); }
+  .dn { color: var(--accent4); background: rgba(255,107,138,0.1); }
+
+  /* NEWS */
+  .news-item { padding: 11px 0; border-bottom: 1px solid var(--border); }
+  .news-item:last-child { border-bottom: none; }
+  .n-tag { font-family: 'DM Mono',monospace; font-size: 9px; letter-spacing: 0.1em; color: var(--accent); margin-bottom: 3px; }
+  .n-hl { font-size: 12px; font-weight: 600; line-height: 1.45; }
+  .n-time { font-family: 'DM Mono',monospace; font-size: 10px; color: var(--text3); margin-top: 3px; }
+
+  /* HABITS */
+  .habit-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .habit-row:last-child { border-bottom: none; }
+  .h-check {
+    width: 24px; height: 24px; border-radius: 7px; border: 1.5px solid var(--border2);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 12px; flex-shrink: 0; transition: all 0.2s;
+  }
+  .h-check.done { background: rgba(0,229,195,0.15); border-color: var(--accent3); color: var(--accent3); }
+  .h-name { font-size: 13px; font-weight: 600; }
+  .h-streak { font-family: 'DM Mono',monospace; font-size: 10px; color: var(--accent5); }
+  .h-emoji { font-size: 18px; flex-shrink: 0; }
+
+  /* GOALS */
+  .goal-item { margin-bottom: 14px; }
+  .goal-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; font-size: 12px; }
+  .goal-name { font-weight: 600; }
+  .goal-pct { font-family: 'DM Mono',monospace; color: var(--text2); }
+  .goal-bar { height: 6px; background: var(--surface3); border-radius: 3px; }
+  .goal-prog { height: 100%; border-radius: 3px; }
+
+  /* MOOD */
+  .mood-row { display: flex; justify-content: space-between; margin: 12px 0; }
+  .mood-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 8px 6px; border-radius: 12px; border: 1px solid var(--border);
+    background: var(--surface2); font-size: 10px; color: var(--text2); cursor: pointer; transition: all 0.2s; flex: 1; margin: 0 3px;
+  }
+  .mood-btn .em { font-size: 20px; }
+  .mood-btn.sel { border-color: rgba(77,166,255,0.4); background: rgba(77,166,255,0.08); color: var(--accent); }
+  .mood-ta {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 12px; color: var(--text); font-family: 'Syne',sans-serif; font-size: 12px;
+    resize: none; outline: none; margin-top: 8px;
+  }
+  .mood-ta:focus { border-color: var(--border2); }
+
+  /* VOICE ORB */
+  .voice-area { display: flex; flex-direction: column; align-items: center; padding: 30px 16px; }
+  .vorb-wrap { position: relative; margin-bottom: 30px; }
+  .vorb {
+    width: 140px; height: 140px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #7dc4ff, #2a6ab5 40%, #0d2040);
+    box-shadow: 0 0 50px rgba(77,166,255,0.4), 0 0 100px rgba(77,166,255,0.12);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 44px; transition: all 0.3s;
+    animation: vPulse 3s ease-in-out infinite; position: relative; z-index: 2;
+  }
+  .vorb:active { transform: scale(0.93); }
+  .vorb.listening { animation: vListen 0.8s ease-in-out infinite; }
+  @keyframes vPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.04)} }
+  @keyframes vListen { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+  .vring {
+    position: absolute; inset: -18px; border-radius: 50%;
+    border: 1px solid rgba(77,166,255,0.2); animation: rExp 3s ease-out infinite;
+  }
+  .vring2 {
+    position: absolute; inset: -36px; border-radius: 50%;
+    border: 1px solid rgba(77,166,255,0.1); animation: rExp 3s ease-out infinite 1s;
+  }
+  @keyframes rExp { 0%{opacity:0.5;transform:scale(0.9)} 100%{opacity:0;transform:scale(1.2)} }
+  .v-status { font-size: 13px; color: var(--text2); margin-bottom: 6px; text-align: center; }
+  .v-hint { font-family: 'DM Mono',monospace; font-size: 10px; color: var(--text3); letter-spacing: 0.1em; }
+  .v-transcript {
+    width: 100%; background: var(--surface); border: 1px solid var(--border2);
+    border-radius: 14px; padding: 16px; margin-top: 20px; min-height: 70px;
+    font-family: 'Instrument Serif',serif; font-size: 16px; font-style: italic;
+    color: var(--text2); text-align: center; line-height: 1.6;
+  }
+  .v-cmds { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; width: 100%; }
+  .v-cmd {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 12px 10px; cursor: pointer; transition: all 0.2s;
+  }
+  .v-cmd:active { border-color: var(--border2); transform: scale(0.97); }
+  .v-cmd-lbl { font-family: 'DM Mono',monospace; font-size: 9px; color: var(--accent); margin-bottom: 3px; letter-spacing: 0.1em; }
+  .v-cmd-txt { font-style: italic; font-family: 'Instrument Serif',serif; font-size: 12px; color: var(--text2); }
+
+  /* SCENE CARDS */
+  .scene-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+    padding: 16px; cursor: pointer; transition: all 0.2s; margin-bottom: 10px;
+    position: relative;
+  }
+  .scene-card:active { transform: scale(0.98); }
+  .scene-card.on { border-color: rgba(77,166,255,0.35); background: rgba(77,166,255,0.04); }
+  .sc-icon { font-size: 28px; margin-bottom: 8px; }
+  .sc-name { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .sc-desc { font-size: 11px; color: var(--text2); line-height: 1.5; }
+  .sc-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+  .sc-tag {
+    padding: 2px 8px; border-radius: 10px; font-size: 9px;
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text3);
+    font-family: 'DM Mono',monospace;
+  }
+  .sc-toggle {
+    position: absolute; top: 14px; right: 14px; width: 38px; height: 21px;
+    border-radius: 11px; background: var(--surface3); border: 1px solid var(--border);
+    transition: all 0.3s;
+  }
+  .sc-toggle::after {
+    content: ''; position: absolute; top: 2px; left: 2px;
+    width: 15px; height: 15px; border-radius: 50%; background: var(--text3); transition: all 0.3s;
+  }
+  .scene-card.on .sc-toggle { background: rgba(77,166,255,0.3); border-color: rgba(77,166,255,0.5); }
+  .scene-card.on .sc-toggle::after { left: 19px; background: var(--accent); }
+
+  /* DEVICE GRID */
+  .dev-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .dev-card {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 14px;
+    padding: 14px 10px; text-align: center; cursor: pointer; transition: all 0.2s;
+  }
+  .dev-card:active { transform: scale(0.95); }
+  .dev-card.on { background: rgba(77,166,255,0.08); border-color: rgba(77,166,255,0.3); }
+  .dev-icon { font-size: 24px; margin-bottom: 6px; }
+  .dev-name { font-size: 10px; font-weight: 600; margin-bottom: 3px; }
+  .dev-st { font-family: 'DM Mono',monospace; font-size: 9px; }
+  .d-on { color: var(--accent); }
+  .d-off { color: var(--text3); }
+
+  /* FINANCE */
+  .fin-stat {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 14px; padding: 14px;
+  }
+  .fs-val { font-size: 22px; font-weight: 800; font-family: 'DM Mono',monospace; margin-bottom: 3px; }
+  .fs-lbl { font-size: 11px; color: var(--text2); }
+  .fs-chg { font-family: 'DM Mono',monospace; font-size: 10px; margin-top: 5px; }
+
+  /* LOAN FORM */
+  .form-group { margin-bottom: 10px; }
+  .f-lbl { font-size: 10px; color: var(--text2); font-family: 'DM Mono',monospace; letter-spacing: 0.08em; margin-bottom: 5px; }
+  .f-inp {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 9px;
+    padding: 10px 12px; color: var(--text); font-family: 'DM Mono',monospace; font-size: 13px; outline: none;
+    transition: border-color 0.2s; -webkit-appearance: none;
+  }
+  .f-inp:focus { border-color: rgba(77,166,255,0.4); }
+  .calc-btn {
+    width: 100%; padding: 13px; border-radius: 10px;
+    background: linear-gradient(135deg, rgba(77,166,255,0.2), rgba(0,229,195,0.1));
+    border: 1px solid rgba(77,166,255,0.3); color: var(--accent);
+    font-family: 'Syne',sans-serif; font-size: 13px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; letter-spacing: 0.08em; margin-top: 4px;
+  }
+  .calc-btn:active { transform: scale(0.98); }
+  .loan-res {
+    margin-top: 12px; padding: 14px; background: var(--surface2); border-radius: 12px;
+    border: 1px solid rgba(0,229,195,0.2); display: none;
+  }
+  .loan-res.show { display: block; }
+  .res-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+  .res-item { text-align: center; }
+  .res-val { font-size: 15px; font-weight: 700; font-family: 'DM Mono',monospace; color: var(--accent3); }
+  .res-lbl { font-size: 9px; color: var(--text3); margin-top: 2px; }
+
+  /* INCOME IDEAS */
+  .idea-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 8px; }
+  .idea-hdr { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 7px; }
+  .idea-title { font-size: 13px; font-weight: 700; flex: 1; padding-right: 8px; }
+  .badge { padding: 2px 8px; border-radius: 12px; font-size: 9px; font-family: 'DM Mono',monospace; white-space: nowrap; }
+  .b-lo { background: rgba(74,222,128,0.1); color: #4ade80; }
+  .b-me { background: rgba(255,169,77,0.1); color: var(--accent5); }
+  .b-hi { background: rgba(255,107,138,0.1); color: var(--accent4); }
+  .idea-stats { display: flex; gap: 12px; font-size: 10px; color: var(--text2); }
+  .idea-stats span { color: var(--text); font-weight: 600; }
+  .idea-desc { font-size: 11px; color: var(--text2); line-height: 1.6; margin-top: 7px; }
+
+  /* HEALTH BIG */
+  .hbig { background: var(--surface2); border: 1px solid var(--border); border-radius: 14px; padding: 14px; text-align: center; }
+  .hbig-icon { font-size: 28px; margin-bottom: 5px; }
+  .hbig-val { font-size: 28px; font-weight: 800; font-family: 'DM Mono',monospace; line-height: 1; }
+  .hbig-unit { font-size: 11px; color: var(--text3); }
+  .hbig-lbl { font-size: 11px; color: var(--text2); margin-top: 3px; }
+  .hbig-st { font-size: 10px; margin-top: 7px; padding: 2px 10px; border-radius: 20px; display: inline-block; font-family: 'DM Mono',monospace; }
+  .st-good { background: rgba(74,222,128,0.1); color: #4ade80; }
+  .st-warn { background: rgba(255,169,77,0.1); color: var(--accent5); }
+
+  /* CALM BANNER */
+  .calm-banner {
+    background: linear-gradient(135deg, rgba(77,166,255,0.08), rgba(0,229,195,0.04));
+    border: 1px solid rgba(0,229,195,0.2); border-radius: 14px; padding: 14px; margin-bottom: 12px;
+  }
+  .calm-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .calm-icon-big { font-size: 28px; }
+  .calm-title { font-size: 13px; font-weight: 700; }
+  .calm-sub { font-size: 11px; color: var(--text2); line-height: 1.5; }
+  .calm-btn {
+    margin-top: 10px; width: 100%; padding: 10px; border-radius: 20px;
+    background: rgba(0,229,195,0.1); border: 1px solid rgba(0,229,195,0.3);
+    color: var(--accent3); font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s;
+  }
+  .calm-btn:active { transform: scale(0.97); }
+
+  /* BREATHING */
+  .breath-wrap { text-align: center; padding: 20px 0; }
+  .breath-circle {
+    width: 110px; height: 110px; border-radius: 50%; margin: 0 auto 16px;
+    background: radial-gradient(circle, rgba(0,229,195,0.3), rgba(0,229,195,0.04));
+    border: 2px solid rgba(0,229,195,0.4);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: var(--accent3); font-weight: 700;
+    animation: breathe 4s ease-in-out infinite;
+  }
+  @keyframes breathe { 0%,100%{transform:scale(0.8);opacity:0.6} 50%{transform:scale(1.2);opacity:1} }
+  .breath-note { font-size: 12px; color: var(--text2); }
+
+  /* PRIVACY TOGGLES */
+  .setting-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .setting-row:last-child { border-bottom: none; }
+  .s-title { font-size: 12px; font-weight: 600; margin-bottom: 2px; }
+  .s-sub { font-size: 10px; color: var(--text2); }
+  .toggle {
+    width: 42px; height: 23px; border-radius: 12px; background: var(--surface3);
+    border: 1px solid var(--border); cursor: pointer; transition: all 0.3s; position: relative; flex-shrink: 0;
+  }
+  .toggle::after {
+    content: ''; position: absolute; top: 2px; left: 2px;
+    width: 17px; height: 17px; border-radius: 50%; background: var(--text3); transition: all 0.3s;
+  }
+  .toggle.on { background: rgba(77,166,255,0.25); border-color: rgba(77,166,255,0.5); }
+  .toggle.on::after { left: 21px; background: var(--accent); }
+
+  /* CHAT */
+  .chat-wrap { display: flex; flex-direction: column; height: 380px; }
+  .chat-msgs { flex: 1; overflow-y: auto; padding-bottom: 8px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .chat-msgs::-webkit-scrollbar { display: none; }
+  .msg { display: flex; gap: 8px; margin-bottom: 12px; }
+  .msg.user { flex-direction: row-reverse; }
+  .m-av {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 13px;
+  }
+  .m-av.luca { background: radial-gradient(circle at 35% 35%, #7dc4ff, #2a6ab5); box-shadow: 0 0 8px rgba(77,166,255,0.3); }
+  .m-av.user { background: var(--surface3); border: 1px solid var(--border2); }
+  .m-bub {
+    max-width: 78%; padding: 9px 13px; border-radius: 14px; font-size: 12px; line-height: 1.55;
+  }
+  .msg.luca .m-bub { background: var(--surface2); border: 1px solid var(--border); border-top-left-radius: 4px; }
+  .msg.user .m-bub { background: rgba(77,166,255,0.1); border: 1px solid rgba(77,166,255,0.2); border-top-right-radius: 4px; }
+  .chat-row { display: flex; gap: 8px; }
+  .chat-inp {
+    flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px;
+    padding: 10px 13px; color: var(--text); font-family: 'Syne',sans-serif; font-size: 13px; outline: none;
+    -webkit-appearance: none;
+  }
+  .chat-inp:focus { border-color: var(--border2); }
+  .chat-send {
+    width: 40px; height: 40px; border-radius: 12px; background: rgba(77,166,255,0.15);
+    border: 1px solid rgba(77,166,255,0.3); color: var(--accent); cursor: pointer;
+    display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0;
+  }
+  .chat-send:active { transform: scale(0.93); }
+  .typing-dots { display: flex; gap: 4px; padding: 4px 0; }
+  .typing-dots span { width: 5px; height: 5px; border-radius: 50%; background: var(--text3); animation: dot 1.2s ease-in-out infinite; }
+  .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes dot { 0%,80%,100%{transform:scale(0.6);opacity:0.4} 40%{transform:scale(1);opacity:1} }
+  .q-prompts { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .q-prompt {
+    padding: 6px 12px; border-radius: 20px; font-size: 11px; cursor: pointer;
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text2); transition: all 0.2s;
+  }
+  .q-prompt:active { border-color: var(--border2); color: var(--text); }
+
+  /* NOTIFICATIONS */
+  .notif-strip {
+    position: fixed; top: 70px; left: 14px; right: 14px; z-index: 200;
+    display: flex; flex-direction: column; gap: 8px; pointer-events: none;
+  }
+  .notif {
+    background: var(--surface); border: 1px solid var(--border2);
+    border-radius: 14px; padding: 12px 16px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    animation: nIn 0.35s ease-out, nOut 0.35s ease-in 3.65s forwards;
+    pointer-events: all;
+  }
+  @keyframes nIn { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes nOut { from{opacity:1} to{opacity:0;transform:translateY(-8px)} }
+  .n-hdr { display: flex; align-items: center; gap: 7px; margin-bottom: 4px; }
+  .n-icon { font-size: 15px; }
+  .n-title { font-size: 11px; font-weight: 700; }
+  .n-body { font-size: 11px; color: var(--text2); line-height: 1.4; }
+
+  /* BRIEFING MODAL */
+  .modal-bg {
+    position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(8px); display: flex; align-items: flex-end; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s;
+  }
+  .modal-bg.show { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border2);
+    border-radius: 24px 24px 0 0; padding: 24px 20px;
+    width: 100%; max-height: 85vh; overflow-y: auto;
+    transform: translateY(30px); transition: transform 0.35s ease;
+    scrollbar-width: none; padding-bottom: max(24px, var(--safe-bottom));
+  }
+  .modal-bg.show .modal { transform: translateY(0); }
+  .modal::-webkit-scrollbar { display: none; }
+  .modal-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .modal-title { font-size: 18px; font-weight: 800; }
+  .modal-close { width: 30px; height: 30px; border-radius: 8px; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text2); font-size: 14px; }
+  .brief-sec { margin-bottom: 16px; }
+  .brief-lbl { font-family: 'DM Mono',monospace; font-size: 9px; letter-spacing: 0.14em; color: var(--accent); margin-bottom: 6px; }
+  .brief-body { font-size: 12px; color: var(--text2); line-height: 1.7; }
+
+  /* INSTALL BANNER */
+  .install-banner {
+    background: linear-gradient(135deg, rgba(0,229,195,0.08), rgba(77,166,255,0.05));
+    border: 1px solid rgba(0,229,195,0.2); border-radius: 14px; padding: 14px; margin-bottom: 12px;
+    display: none;
+  }
+  .install-banner.show { display: block; }
+  .ib-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .ib-sub { font-size: 11px; color: var(--text2); margin-bottom: 10px; }
+  .ib-btn {
+    width: 100%; padding: 10px; border-radius: 20px; font-size: 12px; font-weight: 700;
+    background: rgba(0,229,195,0.15); border: 1px solid rgba(0,229,195,0.3);
+    color: var(--accent3); cursor: pointer; letter-spacing: 0.06em;
+  }
+  .ib-btn:active { transform: scale(0.97); }
+
+  /* WEATHER */
+  .wx-main { display: flex; align-items: center; gap: 16px; margin: 10px 0; }
+  .wx-temp { font-size: 46px; font-weight: 800; line-height: 1; }
+  .wx-icon { font-size: 40px; }
+  .wx-details { font-size: 11px; color: var(--text2); line-height: 1.9; }
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="bg-orb1"></div>
+<div class="bg-orb2"></div>
+<div class="notif-strip" id="ns"></div>
+
+<!-- BRIEFING MODAL -->
+<div class="modal-bg" id="briefModal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title">☀️ Morning Briefing</div>
+      <div class="modal-close" onclick="closeBrief()">✕</div>
+    </div>
+    <div class="brief-sec"><div class="brief-lbl">🌍 WORLD NEWS</div><div class="brief-body">Global markets show resilience as central banks signal a pause in rate hikes. NATO allies convene in Brussels to discuss updated security frameworks. UN climate report highlights urgency of net-zero targets ahead of 2030.</div></div>
+    <div class="brief-sec"><div class="brief-lbl">💼 BUSINESS</div><div class="brief-body">Apple reports record Q1 services revenue. OpenAI announces new enterprise partnerships across healthcare and legal sectors. India's UPI crosses 12 billion monthly transactions milestone.</div></div>
+    <div class="brief-sec"><div class="brief-lbl">📈 MARKETS</div><div class="brief-body">SENSEX up 0.8% at 74,320. NIFTY 50 at 22,550 (+0.6%). USD/INR at 83.4. Gold at ₹62,800/10g. BTC +2.1% at $68,400.</div></div>
+    <div class="brief-sec"><div class="brief-lbl">💻 TECHNOLOGY</div><div class="brief-body">AI legislation progresses in EU Parliament. Samsung unveils next-gen OLED display tech. India's semiconductor policy attracts ₹1.2 lakh crore in fresh investments.</div></div>
+    <div class="brief-sec"><div class="brief-lbl">🇮🇳 INDIA NEWS</div><div class="brief-body">PM Modi inaugurates new expressway network in Maharashtra. ISRO successfully deploys new communication satellite. GST collections hit record ₹2.1 lakh crore in March.</div></div>
+    <div class="brief-sec"><div class="brief-lbl">🌤️ WEATHER — CHENNAI</div><div class="brief-body">Partly cloudy, 28°C. Humidity 74%. Sea breeze from 2 PM. Wear light clothing, stay hydrated.</div></div>
+    <div class="brief-sec"><div class="brief-lbl">✨ DAILY INSIGHT</div><div class="brief-body" style="font-family:'Instrument Serif',serif;font-size:15px;font-style:italic;color:var(--accent2)">"Clarity is the byproduct of consistent action. Begin today with intention."</div></div>
+  </div>
+</div>
+
+<div class="app-shell">
+  <!-- HEADER -->
+  <header>
+    <div class="logo">
+      <div class="logo-orb" onclick="notif('Hey! I\'m LUCA. How can I help you today? 🤖','🌐')"></div>
+      <div>
+        <div class="logo-text">LUCA</div>
+        <div class="logo-sub">PERSONAL AI</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="status-pill"><div class="status-dot"></div>ACTIVE</div>
+      <div class="time-disp" id="clock">--:--</div>
+      <div class="hdr-btn" onclick="openBrief()">☀️</div>
+      <div class="hdr-btn" onclick="notif('No emergency alerts. All systems nominal. ✅','🔔')">🔔</div>
+    </div>
+  </header>
+
+  <!-- SCROLLABLE CONTENT -->
+  <div class="content" id="mainContent">
+    <div class="content-inner">
+
+      <!-- ===== HOME ===== -->
+      <div class="panel active" id="p-home">
+        <div class="install-banner" id="installBanner">
+          <div class="ib-title">📲 Install LUCA on your phone</div>
+          <div class="ib-sub">Add to Home Screen for the full app experience — works offline too.</div>
+          <button class="ib-btn" id="installBtn">⬇️ INSTALL APP</button>
+        </div>
+        <div class="greeting-card">
+          <div class="g-time" id="gTime">GOOD MORNING · THURSDAY, 5 MARCH 2026</div>
+          <div class="g-name">Hello, <span>Hari</span> 👋</div>
+          <div class="g-sub">3 meetings today. Heart rate excellent. Markets up. Ready to make today count?</div>
+          <div class="g-chips">
+            <div class="chip ch-b" onclick="openBrief()">☀️ Briefing</div>
+            <div class="chip ch-t" onclick="calmMode()">🧘 Calm</div>
+            <div class="chip ch-o" onclick="scene('workout')">💪 Workout</div>
+            <div class="chip ch-r" onclick="notif('Emergency contacts notified. Calling Dr. Krishnan. 🚨','🚨')">🚨 SOS</div>
+          </div>
+        </div>
+
+        <div class="sec-label">Health Snapshot</div>
+        <div class="grid2">
+          <div class="metric-card"><div class="mc-icon">❤️</div><div class="mc-val" style="color:var(--accent4)">72<span class="mc-unit"> bpm</span></div><div class="mc-label">Heart Rate</div><div class="mc-bar"><div class="mc-fill f-r" style="width:60%"></div></div></div>
+          <div class="metric-card"><div class="mc-icon">👟</div><div class="mc-val" style="color:var(--accent)">7,840</div><div class="mc-label">Steps Today</div><div class="mc-bar"><div class="mc-fill f-b" style="width:78%"></div></div></div>
+          <div class="metric-card"><div class="mc-icon">😴</div><div class="mc-val" style="color:var(--accent3)">7.2<span class="mc-unit">h</span></div><div class="mc-label">Sleep</div><div class="mc-bar"><div class="mc-fill f-t" style="width:72%"></div></div></div>
+          <div class="metric-card"><div class="mc-icon">💧</div><div class="mc-val" style="color:var(--accent5)">1.8<span class="mc-unit">L</span></div><div class="mc-label">Hydration</div><div class="mc-bar"><div class="mc-fill f-o" style="width:60%"></div></div></div>
+        </div>
+
+        <div class="sec-label">Markets</div>
+        <div class="card">
+          <div class="ticker-row"><div><div class="t-sym">SENSEX</div><div class="t-sub">BSE India</div></div><div class="t-val">74,320</div><div class="t-chg up">▲ +0.8%</div></div>
+          <div class="ticker-row"><div><div class="t-sym">NIFTY 50</div><div class="t-sub">NSE</div></div><div class="t-val">22,550</div><div class="t-chg up">▲ +0.6%</div></div>
+          <div class="ticker-row"><div><div class="t-sym">BTC/USD</div><div class="t-sub">Crypto</div></div><div class="t-val">$68,400</div><div class="t-chg up">▲ +2.1%</div></div>
+          <div class="ticker-row"><div><div class="t-sym">GOLD</div><div class="t-sub">₹/10g</div></div><div class="t-val">₹62,800</div><div class="t-chg dn">▼ -0.2%</div></div>
+        </div>
+
+        <div class="sec-label">Today's Habits</div>
+        <div class="card">
+          <div class="habit-row"><div class="h-check done" onclick="togHabit(this)">✓</div><div class="h-emoji">💧</div><div style="flex:1"><div class="h-name">Drink 2L Water</div><div class="h-streak">🔥 14 day streak</div></div></div>
+          <div class="habit-row"><div class="h-check done" onclick="togHabit(this)">✓</div><div class="h-emoji">🧘</div><div style="flex:1"><div class="h-name">Morning Meditation</div><div class="h-streak">🔥 7 day streak</div></div></div>
+          <div class="habit-row"><div class="h-check" onclick="togHabit(this)"></div><div class="h-emoji">📚</div><div style="flex:1"><div class="h-name">Read 30 Minutes</div><div class="h-streak">🔥 3 day streak</div></div></div>
+          <div class="habit-row"><div class="h-check" onclick="togHabit(this)"></div><div class="h-emoji">💪</div><div style="flex:1"><div class="h-name">Exercise</div><div class="h-streak">🔥 5 day streak</div></div></div>
+        </div>
+
+        <div class="sec-label">Top Stories</div>
+        <div class="card">
+          <div class="news-item"><div class="n-tag">🌍 GLOBAL</div><div class="n-hl">NATO allies convene in Brussels to discuss updated security frameworks</div><div class="n-time">2h ago</div></div>
+          <div class="news-item"><div class="n-tag">🇮🇳 INDIA</div><div class="n-hl">GST collections hit record ₹2.1 lakh crore in March, beating estimates</div><div class="n-time">3h ago</div></div>
+          <div class="news-item"><div class="n-tag">💻 TECH</div><div class="n-hl">India's semiconductor policy attracts ₹1.2 lakh crore in fresh investments</div><div class="n-time">4h ago</div></div>
+          <div class="news-item"><div class="n-tag">💰 FINANCE</div><div class="n-hl">UPI crosses 12 billion monthly transactions milestone</div><div class="n-time">5h ago</div></div>
+        </div>
+
+        <div class="sec-label">Mood Journal</div>
+        <div class="card">
+          <div class="mood-row">
+            <div class="mood-btn" onclick="pickMood(this)"><div class="em">😊</div>Great</div>
+            <div class="mood-btn sel" onclick="pickMood(this)"><div class="em">😌</div>Good</div>
+            <div class="mood-btn" onclick="pickMood(this)"><div class="em">😐</div>Okay</div>
+            <div class="mood-btn" onclick="pickMood(this)"><div class="em">😔</div>Low</div>
+            <div class="mood-btn" onclick="pickMood(this)"><div class="em">😣</div>Stress</div>
+          </div>
+          <textarea class="mood-ta" rows="3" placeholder="How are you feeling today? LUCA is listening..."></textarea>
+        </div>
+
+        <div class="sec-label">Goals Progress</div>
+        <div class="card">
+          <div class="goal-item"><div class="goal-hdr"><div class="goal-name">💪 Lose 5kg</div><div class="goal-pct">68%</div></div><div class="goal-bar"><div class="goal-prog f-t" style="width:68%"></div></div></div>
+          <div class="goal-item"><div class="goal-hdr"><div class="goal-name">💰 Save ₹2L</div><div class="goal-pct">45%</div></div><div class="goal-bar"><div class="goal-prog f-b" style="width:45%"></div></div></div>
+          <div class="goal-item"><div class="goal-hdr"><div class="goal-name">📚 Learn Python</div><div class="goal-pct">80%</div></div><div class="goal-bar"><div class="goal-prog f-o" style="width:80%"></div></div></div>
+          <div class="goal-item"><div class="goal-hdr"><div class="goal-name">🏃 Run 5km</div><div class="goal-pct">30%</div></div><div class="goal-bar"><div class="goal-prog f-r" style="width:30%"></div></div></div>
+        </div>
+      </div>
+
+      <!-- ===== LUCA AI ===== -->
+      <div class="panel" id="p-ai">
+        <div class="sec-label">LUCA AI — Powered by Claude</div>
+        <div class="q-prompts">
+          <div class="q-prompt" onclick="qp('Give me a passive income idea to start with ₹50,000 in India')">💰 Passive income</div>
+          <div class="q-prompt" onclick="qp('Analyze my health this week and suggest improvements')">❤️ Health check</div>
+          <div class="q-prompt" onclick="qp('What side business can I start in Chennai with low investment?')">🏪 Business idea</div>
+          <div class="q-prompt" onclick="qp('I feel stressed today. Help me relax.')">🧘 Stress relief</div>
+          <div class="q-prompt" onclick="qp('Plan a 3-day trip to Coorg with budget estimate')">✈️ Travel plan</div>
+          <div class="q-prompt" onclick="qp('Give me today\'s market outlook for SENSEX and NIFTY')">📈 Market outlook</div>
+        </div>
+        <div class="card">
+          <div class="chat-wrap">
+            <div class="chat-msgs" id="chatMsgs">
+              <div class="msg luca"><div class="m-av luca">🤖</div><div class="m-bub">Hey Hari! I'm LUCA, your AI companion. Ask me anything — health, finance, travel, business ideas, or just talk. I'm here for you. 💙</div></div>
+            </div>
+            <div class="chat-row">
+              <input class="chat-inp" id="chatInp" placeholder="Ask LUCA anything..." onkeydown="if(event.key==='Enter')sendMsg()">
+              <div class="chat-send" onclick="sendMsg()">➤</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== VOICE ===== -->
+      <div class="panel" id="p-voice">
+        <div class="sec-label">Voice Assistant</div>
+        <div class="voice-area">
+          <div class="vorb-wrap">
+            <div class="vring"></div>
+            <div class="vring2"></div>
+            <div class="vorb" id="vorb" onclick="togVoice()">🎙️</div>
+          </div>
+          <div class="v-status" id="vStatus">Tap orb · Say "Hey LUCA"</div>
+          <div class="v-hint" id="vHint">WAKE WORD · HEY LUCA</div>
+          <div class="v-transcript" id="vTrans">Your voice commands will appear here...</div>
+          <div class="v-cmds">
+            <div class="v-cmd" onclick="simVoice('Luca, good night')"><div class="v-cmd-lbl">SCENE</div><div class="v-cmd-txt">"Luca, good night"</div></div>
+            <div class="v-cmd" onclick="simVoice('Luca, navigate home')"><div class="v-cmd-lbl">CAR</div><div class="v-cmd-txt">"Luca, navigate home"</div></div>
+            <div class="v-cmd" onclick="simVoice('Luca, workout mode')"><div class="v-cmd-lbl">FITNESS</div><div class="v-cmd-txt">"Luca, workout mode"</div></div>
+            <div class="v-cmd" onclick="simVoice('Luca, I feel stressed')"><div class="v-cmd-lbl">WELLNESS</div><div class="v-cmd-txt">"Luca, I feel stressed"</div></div>
+            <div class="v-cmd" onclick="simVoice('Luca, morning briefing')"><div class="v-cmd-lbl">BRIEFING</div><div class="v-cmd-txt">"Luca, morning briefing"</div></div>
+            <div class="v-cmd" onclick="simVoice('Luca, how am I doing?')"><div class="v-cmd-lbl">STATUS</div><div class="v-cmd-txt">"Luca, how am I doing?"</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== HEALTH ===== -->
+      <div class="panel" id="p-health">
+        <div class="calm-banner">
+          <div class="calm-head"><div class="calm-icon-big">🧘</div><div><div class="calm-title">Stress detected — Calm Mode ready</div></div></div>
+          <div class="calm-sub">Heart rate variability suggests mild stress. LUCA can activate breathing exercises and play calming Tamil melodies.</div>
+          <button class="calm-btn" onclick="calmMode()">Activate Calm Mode</button>
+        </div>
+        <div class="sec-label">Biometrics</div>
+        <div class="grid2">
+          <div class="hbig"><div class="hbig-icon">❤️</div><div class="hbig-val" style="color:var(--accent4)">72<span class="hbig-unit">bpm</span></div><div class="hbig-lbl">Heart Rate</div><div class="hbig-st st-good">Normal</div></div>
+          <div class="hbig"><div class="hbig-icon">👟</div><div class="hbig-val" style="color:var(--accent)">7,840</div><div class="hbig-lbl">Steps</div><div class="hbig-st st-warn">78% goal</div></div>
+          <div class="hbig"><div class="hbig-icon">😴</div><div class="hbig-val" style="color:var(--accent3)">7.2<span class="hbig-unit">h</span></div><div class="hbig-lbl">Sleep</div><div class="hbig-st st-good">Good</div></div>
+          <div class="hbig"><div class="hbig-icon">⚖️</div><div class="hbig-val" style="color:var(--accent5)">74.2<span class="hbig-unit">kg</span></div><div class="hbig-lbl">Weight</div><div class="hbig-st st-warn">Goal 70kg</div></div>
+          <div class="hbig"><div class="hbig-icon">💧</div><div class="hbig-val" style="color:var(--accent)">1.8<span class="hbig-unit">L</span></div><div class="hbig-lbl">Hydration</div><div class="hbig-st st-warn">+0.2L needed</div></div>
+          <div class="hbig"><div class="hbig-icon">🔥</div><div class="hbig-val" style="color:var(--accent4)">1,240<span class="hbig-unit">cal</span></div><div class="hbig-lbl">Burned</div><div class="hbig-st st-good">On track</div></div>
+        </div>
+        <div class="sec-label">Breathing Exercise</div>
+        <div class="card">
+          <div class="breath-wrap">
+            <div class="breath-circle" id="bCircle">Breathe</div>
+            <div class="breath-note">4 sec in · 4 hold · 6 sec out</div>
+          </div>
+        </div>
+        <div class="sec-label">LUCA Suggestions</div>
+        <div class="card" style="font-size:13px;color:var(--text2);line-height:2.1">
+          💧 Drink 200ml more water today<br>
+          🚶 Take a 10-min walk — 22% left on step goal<br>
+          🧘 5-min meditation before your 3 PM meeting<br>
+          😴 Sleep before 10:30 PM to maintain streak<br>
+          💪 Stretch now — seated for 2+ hours
+        </div>
+      </div>
+
+      <!-- ===== FINANCE ===== -->
+      <div class="panel" id="p-finance">
+        <div class="sec-label">Monthly Overview</div>
+        <div class="grid2">
+          <div class="fin-stat"><div class="fs-val" style="color:var(--accent3)">₹4.2L</div><div class="fs-lbl">Income</div><div class="fs-chg up">▲ +12%</div></div>
+          <div class="fin-stat"><div class="fs-val" style="color:var(--accent4)">₹1.8L</div><div class="fs-lbl">Expenses</div><div class="fs-chg dn">▼ -5%</div></div>
+          <div class="fin-stat"><div class="fs-val" style="color:var(--accent)">₹2.4L</div><div class="fs-lbl">Net Savings</div><div class="fs-chg up">▲ +18%</div></div>
+          <div class="fin-stat"><div class="fs-val" style="color:var(--accent5)">₹90K</div><div class="fs-lbl">Annual Goal</div><div class="fs-chg" style="color:var(--text2)">45% done</div></div>
+        </div>
+        <div class="sec-label">Loan Optimizer</div>
+        <div class="card">
+          <div class="form-group"><div class="f-lbl">LOAN AMOUNT (₹)</div><input class="f-inp" id="lAmt" type="number" value="2500000"></div>
+          <div class="form-group"><div class="f-lbl">INTEREST RATE (%)</div><input class="f-inp" id="lRate" type="number" value="8.5" step="0.1"></div>
+          <div class="form-group"><div class="f-lbl">TENURE (YEARS)</div><input class="f-inp" id="lTenure" type="number" value="20"></div>
+          <div class="form-group"><div class="f-lbl">PREPAYMENT / YEAR (₹)</div><input class="f-inp" id="lPrepay" type="number" value="100000"></div>
+          <button class="calc-btn" onclick="calcLoan()">⚡ OPTIMIZE MY LOAN</button>
+          <div class="loan-res" id="lRes">
+            <div style="font-size:10px;color:var(--accent3);margin-bottom:10px;font-family:'DM Mono',monospace;letter-spacing:0.1em">LUCA STRATEGY</div>
+            <div class="res-grid">
+              <div class="res-item"><div class="res-val" id="rEmi">-</div><div class="res-lbl">Monthly EMI</div></div>
+              <div class="res-item"><div class="res-val" id="rSav">-</div><div class="res-lbl">Interest Saved</div></div>
+              <div class="res-item"><div class="res-val" id="rYrs">-</div><div class="res-lbl">Payoff In</div></div>
+            </div>
+            <div style="font-size:11px;color:var(--text2);margin-top:12px;line-height:1.6" id="lAdvice"></div>
+          </div>
+        </div>
+        <div class="sec-label">Passive Income Ideas</div>
+        <div class="idea-card">
+          <div class="idea-hdr"><div class="idea-title">📱 Notion Templates Store</div><div class="badge b-lo">LOW RISK</div></div>
+          <div class="idea-stats">Startup: <span>₹5,000</span>&nbsp;&nbsp;Monthly: <span>₹15K–40K</span></div>
+          <div class="idea-desc">Create and sell productivity templates on Gumroad. One-time creation, recurring passive revenue.</div>
+        </div>
+        <div class="idea-card">
+          <div class="idea-hdr"><div class="idea-title">📊 NIFTY 50 SIP Investment</div><div class="badge b-lo">LOW RISK</div></div>
+          <div class="idea-stats">Startup: <span>₹5,000/mo</span>&nbsp;&nbsp;Annual: <span>10–12% returns</span></div>
+          <div class="idea-desc">Systematic investment in NIFTY index funds. Compounding builds wealth over 5–10 years.</div>
+        </div>
+        <div class="idea-card">
+          <div class="idea-hdr"><div class="idea-title">🎓 Online Course — Udemy</div><div class="badge b-me">MEDIUM RISK</div></div>
+          <div class="idea-stats">Startup: <span>₹20,000</span>&nbsp;&nbsp;Monthly: <span>₹10K–60K</span></div>
+          <div class="idea-desc">Monetize your expertise in AI, Tamil, finance. Setup once, earn indefinitely.</div>
+        </div>
+        <div class="sec-label">Market Intelligence</div>
+        <div class="card" style="font-size:12px;color:var(--text2);line-height:2">
+          📈 <b style="color:var(--text)">SENSEX</b> — Bullish. Support at 73,500. Watch RBI Apr 5.<br>
+          🥇 <b style="color:var(--text)">GOLD</b> — Mild correction. May hit ₹65,000 by Q2.<br>
+          ₿ <b style="color:var(--text)">BITCOIN</b> — Halving in April. Target $80K–90K.<br>
+          💻 <b style="color:var(--text)">IT Stocks</b> — Infosys, TCS at attractive P/E. Accumulate.
+        </div>
+      </div>
+
+      <!-- ===== AUTO ===== -->
+      <div class="panel" id="p-auto">
+        <div class="sec-label">Smart Scenes</div>
+        <div class="scene-card on" id="sc-morning" onclick="scene('morning')">
+          <div class="sc-toggle"></div>
+          <div class="sc-icon">🌅</div><div class="sc-name">Morning Routine</div>
+          <div class="sc-desc">Gradual lights, morning briefing, weather, health summary at 6 AM.</div>
+          <div class="sc-tags"><div class="sc-tag">Lights</div><div class="sc-tag">Briefing</div><div class="sc-tag">Weather</div><div class="sc-tag">Health</div></div>
+        </div>
+        <div class="scene-card" id="sc-workout" onclick="scene('workout')">
+          <div class="sc-toggle"></div>
+          <div class="sc-icon">💪</div><div class="sc-name">Workout Mode</div>
+          <div class="sc-desc">Step tracking, workout timer, energetic music, focus mode.</div>
+          <div class="sc-tags"><div class="sc-tag">Steps</div><div class="sc-tag">Timer</div><div class="sc-tag">Music</div><div class="sc-tag">Focus</div></div>
+        </div>
+        <div class="scene-card" id="sc-calm" onclick="scene('calm')">
+          <div class="sc-toggle"></div>
+          <div class="sc-icon">🧘</div><div class="sc-name">Stress Relief</div>
+          <div class="sc-desc">Dim lights, Tamil melodies, breathing guide, app block.</div>
+          <div class="sc-tags"><div class="sc-tag">Dim Lights</div><div class="sc-tag">Music</div><div class="sc-tag">Breathing</div></div>
+        </div>
+        <div class="scene-card" id="sc-night" onclick="scene('night')">
+          <div class="sc-toggle"></div>
+          <div class="sc-icon">🌙</div><div class="sc-name">Good Night</div>
+          <div class="sc-desc">Lights off, doors locked, AC 23°C, cameras on, DND.</div>
+          <div class="sc-tags"><div class="sc-tag">Lights Off</div><div class="sc-tag">Lock</div><div class="sc-tag">AC 23°C</div><div class="sc-tag">Security</div></div>
+        </div>
+        <div class="scene-card" id="sc-focus" onclick="scene('focus')">
+          <div class="sc-toggle"></div>
+          <div class="sc-icon">🎯</div><div class="sc-name">Deep Focus</div>
+          <div class="sc-desc">DND, social media blocked, Pomodoro timer, lo-fi music.</div>
+          <div class="sc-tags"><div class="sc-tag">DND</div><div class="sc-tag">Block Apps</div><div class="sc-tag">Pomodoro</div></div>
+        </div>
+        <div class="scene-card" id="sc-drive" onclick="scene('drive')">
+          <div class="sc-toggle"></div>
+          <div class="sc-icon">🚗</div><div class="sc-name">Driving Mode</div>
+          <div class="sc-desc">Voice-only, navigation, auto-reads messages, fuel alerts.</div>
+          <div class="sc-tags"><div class="sc-tag">Voice Only</div><div class="sc-tag">Navigation</div><div class="sc-tag">Auto-Read</div></div>
+        </div>
+        <div class="sec-label">Smart Home</div>
+        <div class="dev-grid">
+          <div class="dev-card on" onclick="togDev(this)"><div class="dev-icon">💡</div><div class="dev-name">Living Room</div><div class="dev-st d-on">ON · 80%</div></div>
+          <div class="dev-card" onclick="togDev(this)"><div class="dev-icon">💡</div><div class="dev-name">Bedroom</div><div class="dev-st d-off">OFF</div></div>
+          <div class="dev-card on" onclick="togDev(this)"><div class="dev-icon">❄️</div><div class="dev-name">AC Hall</div><div class="dev-st d-on">ON 24°C</div></div>
+          <div class="dev-card on" onclick="togDev(this)"><div class="dev-icon">🔒</div><div class="dev-name">Front Door</div><div class="dev-st d-on">LOCKED</div></div>
+          <div class="dev-card on" onclick="togDev(this)"><div class="dev-icon">📹</div><div class="dev-name">Cameras</div><div class="dev-st d-on">ACTIVE</div></div>
+          <div class="dev-card" onclick="togDev(this)"><div class="dev-icon">🔌</div><div class="dev-name">Smart Plug</div><div class="dev-st d-off">OFF</div></div>
+        </div>
+      </div>
+
+      <!-- ===== SETTINGS ===== -->
+      <div class="panel" id="p-settings">
+        <div class="sec-label">Privacy & Security</div>
+        <div class="card">
+          <div class="setting-row"><div><div class="s-title">Encrypted Local Storage</div><div class="s-sub">AES-256 encryption on device</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="setting-row"><div><div class="s-title">Biometric Login</div><div class="s-sub">Face ID / Fingerprint required</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="setting-row"><div><div class="s-title">Local AI Processing</div><div class="s-sub">Sensitive queries processed on-device</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="setting-row"><div><div class="s-title">Minimal Cloud Sync</div><div class="s-sub">Sync preferences only, not personal data</div></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+          <div class="setting-row"><div><div class="s-title">Voice Recording</div><div class="s-sub">Local only · Auto-delete in 24h</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        </div>
+        <div class="sec-label">System Status</div>
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+            <div style="width:8px;height:8px;border-radius:50%;background:#4ade80"></div>
+            <div style="font-size:13px;font-weight:700">All Systems Operational</div>
+          </div>
+          <div style="font-size:12px;color:var(--text2);line-height:2">
+            🔒 Health Database — AES-256 Encrypted<br>
+            🔒 Financial Records — AES-256 Encrypted<br>
+            🔒 Voice Logs — End-to-End Encrypted<br>
+            🔒 Journal Entries — AES-256 Encrypted
+          </div>
+        </div>
+        <div class="sec-label">Emergency Contacts</div>
+        <div class="card" style="font-size:12px;color:var(--text2);line-height:2">
+          👤 Dr. Krishnan — +91 98400 XXXXX<br>
+          👤 Family Contact — +91 99400 XXXXX<br>
+          🏥 Apollo Hospital — Emergency
+        </div>
+        <div class="sec-label">Weather</div>
+        <div class="card">
+          <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:0.1em;margin-bottom:8px">CHENNAI, TN</div>
+          <div class="wx-main">
+            <div class="wx-icon">⛅</div>
+            <div><div class="wx-temp">28°</div><div style="font-size:12px;color:var(--text2)">Partly Cloudy</div></div>
+          </div>
+          <div class="wx-details">💧 Humidity 74%&nbsp;&nbsp;💨 Wind 12 km/h NE<br>🌅 Sunrise 6:18 AM&nbsp;&nbsp;🌇 Sunset 6:24 PM</div>
+        </div>
+        <button onclick="notif('All LUCA data wiped from device. 🗑️','⚠️')" style="width:100%;padding:13px;border-radius:12px;background:rgba(255,107,138,0.08);border:1px solid rgba(255,107,138,0.3);color:var(--accent4);font-size:13px;font-weight:700;cursor:pointer;margin-top:4px;margin-bottom:20px">⚠️ Delete All LUCA Data</button>
+      </div>
+
+    </div><!-- content-inner -->
+  </div><!-- content -->
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <div class="nav-item active" onclick="showPanel('home',this)">
+      <div class="nav-icon">🏠</div>
+      <div class="nav-label">HOME</div>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item" onclick="showPanel('ai',this)">
+      <div class="nav-icon">🤖</div>
+      <div class="nav-label">LUCA AI</div>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item" onclick="showPanel('voice',this)">
+      <div class="nav-icon">🎙️</div>
+      <div class="nav-label">VOICE</div>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item" onclick="showPanel('health',this)">
+      <div class="nav-icon">❤️</div>
+      <div class="nav-label">HEALTH</div>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item" onclick="showPanel('finance',this)">
+      <div class="nav-icon">💰</div>
+      <div class="nav-label">FINANCE</div>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item" onclick="showPanel('auto',this)">
+      <div class="nav-icon">⚡</div>
+      <div class="nav-label">AUTO</div>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item" onclick="showPanel('settings',this)">
+      <div class="nav-icon">🔒</div>
+      <div class="nav-label">PRIVACY</div>
+      <div class="nav-dot"></div>
+    </div>
+  </nav>
+</div>
+
+<script>
+// ── CLOCK ──
+function tick() {
+  const n = new Date();
+  const h = n.getHours(), m = n.getMinutes();
+  document.getElementById('clock').textContent = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+  const greet = h < 12 ? 'GOOD MORNING' : h < 17 ? 'GOOD AFTERNOON' : 'GOOD EVENING';
+  const days = ['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];
+  const months = ['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
+  document.getElementById('gTime').textContent = `${greet} · ${days[n.getDay()]}, ${n.getDate()} ${months[n.getMonth()]} ${n.getFullYear()}`;
+}
+tick(); setInterval(tick, 1000);
+
+// ── PANELS ──
+function showPanel(id, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('p-' + id).classList.add('active');
+  el.classList.add('active');
+  document.getElementById('mainContent').scrollTop = 0;
+}
+
+// ── NOTIFICATIONS ──
+function notif(msg, icon='🔔') {
+  const strip = document.getElementById('ns');
+  const el = document.createElement('div');
+  el.className = 'notif';
+  el.innerHTML = `<div class="n-hdr"><div class="n-icon">${icon}</div><div class="n-title">LUCA</div></div><div class="n-body">${msg}</div>`;
+  strip.appendChild(el);
+  setTimeout(() => el.remove(), 4100);
+}
+
+// ── BRIEFING ──
+function openBrief() { document.getElementById('briefModal').classList.add('show'); }
+function closeBrief() { document.getElementById('briefModal').classList.remove('show'); }
+document.getElementById('briefModal').addEventListener('click', e => { if(e.target===document.getElementById('briefModal')) closeBrief(); });
+
+// ── MOOD ──
+function pickMood(el) {
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('sel'));
+  el.classList.add('sel');
+  const map = {'😊':'Great energy! Channel it into your goals today. 🚀','😌':'Good mood detected. A solid day ahead. ✨','😐':'Feeling neutral — try a 5 min walk. 🚶','😔':'Low mood noted. LUCA suggests a quick meditation. 🧘','😣':'Stress detected! Activating Calm Mode suggestion. 💙'};
+  const em = el.querySelector('.em').textContent;
+  notif(map[em] || 'Mood logged. 💙', em);
+}
+
+// ── HABITS ──
+function togHabit(el) {
+  el.classList.toggle('done');
+  el.textContent = el.classList.contains('done') ? '✓' : '';
+  if(el.classList.contains('done')) notif('Habit completed! Streak extended. 🔥','✅');
+}
+
+// ── VOICE ──
+let listening = false;
+const vResp = {
+  'Luca, good night': 'Good night! Lights off, doors locked, AC 23°C, cameras on. Sleep well. 🌙',
+  'Luca, navigate home': 'Navigation started. Home is 14.2 km — ~28 min via Mount Road. 🚗',
+  'Luca, workout mode': 'Workout mode ON! Step tracking started, energetic playlist queued. 💪',
+  'Luca, I feel stressed': 'I hear you. Dimming lights, playing AR Rahman instrumental. Breathe. 🧘',
+  'Luca, morning briefing': 'Markets up, GST hit record, Chennai 28°C — great start! ☀️',
+  'Luca, how am I doing?': 'Heart rate 72 bpm, 7,840 steps, 7.2h sleep. Markets up. 3 meetings today. You\'re doing great! 📊'
+};
+function togVoice() {
+  listening = !listening;
+  const orb = document.getElementById('vorb');
+  const st = document.getElementById('vStatus');
+  const hint = document.getElementById('vHint');
+  orb.classList.toggle('listening', listening);
+  if(listening) { st.textContent = 'Listening... Speak now'; hint.textContent = 'PROCESSING · ACTIVE'; notif('I\'m listening! Say your command. 🎙️','🎙️'); }
+  else { st.textContent = 'Tap orb · Say "Hey LUCA"'; hint.textContent = 'WAKE WORD · HEY LUCA'; document.getElementById('vTrans').textContent = 'Your voice commands will appear here...'; }
+}
+function simVoice(cmd) {
+  document.getElementById('vTrans').textContent = `"${cmd}"`;
+  document.getElementById('vTrans').style.color = 'var(--text)';
+  document.getElementById('vorb').classList.add('listening');
+  document.getElementById('vStatus').textContent = 'Processing...';
+  setTimeout(() => {
+    const r = vResp[cmd] || 'Command received.';
+    notif(r,'🤖');
+    document.getElementById('vorb').classList.remove('listening');
+    document.getElementById('vStatus').textContent = 'Tap orb · Say "Hey LUCA"';
+    if(cmd.includes('night')) scene('night');
+    if(cmd.includes('stressed')) calmMode();
+    if(cmd.includes('briefing')) openBrief();
+  }, 1000);
+}
+
+// ── SCENES ──
+const sceneMsgs = {
+  morning:'Morning Routine ON! Lights on, briefing loading. ☀️',
+  workout:'Workout Mode ON! Tracker started, music queued. 💪',
+  calm:'Calm Mode ON! Lights dimming, Tamil melodies playing. 🧘',
+  night:'Good Night! Lights off, locked, AC 23°C, cameras on. 🌙',
+  focus:'Deep Focus ON! Social blocked, Pomodoro started. 🎯',
+  drive:'Driving Mode ON! Voice-only enabled. Stay safe. 🚗'
+};
+function scene(id) {
+  const card = document.getElementById('sc-' + id);
+  if(card) card.classList.toggle('on');
+  notif(sceneMsgs[id] || 'Scene activated!','⚡');
+}
+
+// ── CALM ──
+function calmMode() {
+  notif('Calm Mode activated. Dimming lights, playing Nenjukulle. Take a breath. 💙','🧘');
+  showPanel('health', document.querySelectorAll('.nav-item')[3]);
+}
+
+// ── DEVICES ──
+function togDev(el) {
+  el.classList.toggle('on');
+  const name = el.querySelector('.dev-name').textContent;
+  const st = el.querySelector('.dev-st');
+  if(el.classList.contains('on')) { st.className='dev-st d-on'; st.textContent='ON'; notif(`${name} turned ON ✅`,'💡'); }
+  else { st.className='dev-st d-off'; st.textContent='OFF'; notif(`${name} turned OFF ⚫`,'💡'); }
+}
+
+// ── LOAN CALC ──
+function calcLoan() {
+  const P = parseFloat(document.getElementById('lAmt').value) || 2500000;
+  const r = (parseFloat(document.getElementById('lRate').value) || 8.5) / 12 / 100;
+  const n = (parseFloat(document.getElementById('lTenure').value) || 20) * 12;
+  const prepay = parseFloat(document.getElementById('lPrepay').value) || 0;
+  const emi = P * r * Math.pow(1+r,n) / (Math.pow(1+r,n) - 1);
+  const totalWithout = emi * n;
+  const interestWithout = totalWithout - P;
+  let bal = P, months = 0, paid = 0;
+  while(bal > 0 && months < n) {
+    const interest = bal * r;
+    bal -= (emi - interest); paid += emi; months++;
+    if(months % 12 === 0 && bal > 0) bal = Math.max(0, bal - prepay);
+  }
+  const saved = interestWithout - (paid - P);
+  const fmt = v => '₹' + Math.round(v).toLocaleString('en-IN');
+  document.getElementById('rEmi').textContent = fmt(emi);
+  document.getElementById('rSav').textContent = fmt(saved);
+  document.getElementById('rYrs').textContent = (months/12).toFixed(1) + 'y';
+  document.getElementById('lAdvice').textContent = `Pay ${fmt(emi)}/month + ${fmt(prepay)} annually. Saves ${fmt(saved)} in interest and closes ${(20 - months/12).toFixed(1)} years early. 🎯`;
+  document.getElementById('lRes').classList.add('show');
+}
+
+// ── AI CHAT ──
+async function sendMsg() {
+  const inp = document.getElementById('chatInp');
+  const msg = inp.value.trim();
+  if(!msg) return;
+  inp.value = '';
+  const msgs = document.getElementById('chatMsgs');
+  msgs.innerHTML += `<div class="msg user"><div class="m-av user">👤</div><div class="m-bub">${msg}</div></div>`;
+  const tid = 'typing-' + Date.now();
+  msgs.innerHTML += `<div class="msg luca" id="${tid}"><div class="m-av luca">🤖</div><div class="m-bub"><div class="typing-dots"><span></span><span></span><span></span></div></div></div>`;
+  msgs.scrollTop = msgs.scrollHeight;
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        model:"claude-sonnet-4-20250514", max_tokens:1000,
+        system:"You are LUCA, a calm, intelligent personal AI companion. Help with health, finance, travel, business ideas, and emotional support. Indian context (Tamil Nadu, Chennai). User is Hari. Be concise, warm, and actionable. Use INR. Jarvis-like tone.",
+        messages:[{role:"user",content:msg}]
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.map(b=>b.text||'').join('') || 'Trouble connecting. Try again.';
+    document.getElementById(tid).remove();
+    msgs.innerHTML += `<div class="msg luca"><div class="m-av luca">🤖</div><div class="m-bub">${reply.replace(/\n/g,'<br>')}</div></div>`;
+  } catch(e) {
+    document.getElementById(tid).remove();
+    msgs.innerHTML += `<div class="msg luca"><div class="m-av luca">🤖</div><div class="m-bub">Connection issue. Please try again. 🔄</div></div>`;
+  }
+  msgs.scrollTop = msgs.scrollHeight;
+}
+function qp(text) {
+  document.getElementById('chatInp').value = text;
+  sendMsg();
+}
+
+// ── BREATHING ──
+const bTexts = ['Breathe In','Hold','Breathe Out','Hold'];
+let bIdx = 0;
+setInterval(() => {
+  const bc = document.getElementById('bCircle');
+  if(bc) { bc.textContent = bTexts[bIdx%4]; bIdx++; }
+}, 2000);
+
+// ── PWA INSTALL ──
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); deferredPrompt = e;
+  document.getElementById('installBanner').classList.add('show');
+});
+document.getElementById('installBtn')?.addEventListener('click', async () => {
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const result = await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  document.getElementById('installBanner').classList.remove('show');
+  if(result.outcome === 'accepted') notif('LUCA installed! Find it on your home screen. 📱','📲');
+});
+
+// ── SERVICE WORKER ──
+if('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').then(() => console.log('LUCA SW registered'));
+}
+
+// ── WELCOME ──
+setTimeout(() => notif('Good morning, Hari! Your briefing is ready. Markets are up. ☀️','🌅'), 800);
+setTimeout(() => notif('Heart rate 72 bpm · 7,840 steps · Sleep: Good. Great start! ❤️','❤️'), 2400);
+</script>
+</body>
+</html>
